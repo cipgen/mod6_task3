@@ -15,7 +15,7 @@ import (
 
 var (
 	//TeleToken bot
-	TeleToken = os.Getenv("TELE_TOKEN")
+	TeleToken = os.Getenv("6819611883:AAG5my3l9m8KQV1IrjBNw6etNG9VaxgBtfE")
 )
 
 // kbotCmd represents the kbot command
@@ -40,7 +40,7 @@ to quickly create a Cobra application.`,
 		})
 
 		if err != nil {
-			log.Fatalf("Please check TABLE_TOKEN env variable. &s", err)
+			log.Fatalf("Please check TABLE_TOKEN env variable. %s ", err)
 			return
 		}
 
@@ -52,8 +52,8 @@ to quickly create a Cobra application.`,
 			switch payload {
 
 			case "hello":
-				err = m.Send(fmt.Sprintf("Hello I'm Kbot %s!" , appVersion))
-				
+				err = m.Send(fmt.Sprintf("Hello I'm Kbot %s !", appVersion))
+
 			}
 
 			return err
