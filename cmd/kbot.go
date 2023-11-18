@@ -15,7 +15,7 @@ import (
 
 var (
 	//TeleToken bot
-	TeleToken = os.Getenv("6819611883:AAG5my3l9m8KQV1IrjBNw6etNG9VaxgBtfE")
+	TeleToken = os.Getenv("TELE_TOKEN")
 )
 
 // kbotCmd represents the kbot command
@@ -53,6 +53,10 @@ to quickly create a Cobra application.`,
 
 			case "hello":
 				err = m.Send(fmt.Sprintf("Hello I'm Kbot %s !", appVersion))
+
+			case "what's your name", "what is your name", "name": // Різні варіанти запитання
+				// Відповідь бота на запитання про ім'я
+				err = m.Send("My name is Kbot, nice to meet you!")
 
 			}
 
