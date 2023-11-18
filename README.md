@@ -17,3 +17,17 @@ git commit -m "first app kbot"
 git branch  
 git remote -v  
 git push  
+
+
+________
+
+go get -u gopkg.in/telebot.v3
+gofmt -s -w ./
+go get
+go build -ldflags "-X="https://github.com/cipgen/kbot/cmd.appVersion=v1.0.1
+./kbot
+./kbot start
+read -s TELE_TOKEN
+echo $TELE_TOKEN
+export TELE_TOKEN
+go build -ldflags "-X="https://github.com/cipgen/kbot/cmd.appVersion=v1.0.2
