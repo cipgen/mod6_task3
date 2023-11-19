@@ -40,7 +40,7 @@ to quickly create a Cobra application.`,
 		})
 
 		if err != nil {
-			log.Fatalf("Please check TABLE_TOKEN env variable. %s ", err)
+			log.Fatalf("Please check TELE_TOKEN env variable. %s ", err)
 			return
 		}
 
@@ -54,10 +54,19 @@ to quickly create a Cobra application.`,
 			case "hello":
 				err = m.Send(fmt.Sprintf("Hello I'm Kbot %s !", appVersion))
 
-			case "what's your name", "what is your name", "name": // Різні варіанти запитання
-				// Відповідь бота на запитання про ім'я
-				err = m.Send("My name is Kbot, nice to meet you!")
+			case "what's your name", "what is your name", "name":
+				err = m.Send("You already know my name from using the hello command, what's with your memory? ;)")
 
+			case "what time is it", "time":
+				currentTime := time.Now().Format("15:04:05 MST") // Формат часу у форматі HH:MM:SS TimeZone
+				err = m.Send(fmt.Sprintf("Current time is: %s", currentTime))
+
+			default:
+				err = m.Send("I'm not sure what you're asking for. Can you try again?")
+			}
+
+			if err != nil {
+				log.Printf("Error sending message: %v", err)
 			}
 
 			return err
