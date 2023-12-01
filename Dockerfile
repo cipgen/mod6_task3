@@ -1,12 +1,21 @@
+# Используйте тот же базовый образ для сборки
 FROM quay.io/projectquay/golang:1.20 as builder
+
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /go/src/app
 COPY . .
 
-RUN make build
+# Компиляция вашего приложения
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -v -o kbot
 
-FROM scratch
+# Используйте alpine вместо scratch для финального образа
+FROM alpine:latest
 WORKDIR /
-COPY --from=builder /go/src/app/kbot .
-COPY --from=alpine:latest /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-ENTRYPOINT ["./kbot"]
+
+# Копирование собранного приложения
+COPY --from=builder /go/src/app/kbot /kbot
+
+# Сертификаты уже включены в alpine
+ENTRYPOINT ["/kbot"]
