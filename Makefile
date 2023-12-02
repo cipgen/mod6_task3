@@ -2,32 +2,48 @@ APP=$(shell basename $(shell git remote get-url origin))
 REGISTRY=gcr.io/smiling-rhythm-404620
 VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
 
-# Загальні цілі
+# Common targets
 .PHONY: all format lint test get clean build image push
 
-# Збірка для всіх платформ
-all: linux mac windows arm
+# Build for all platforms
+all: linux darwin windows arm
 
-# Форматування, лінтинг, тестування, завантаження залежностей
-format lint test get:
-	go $@ ./...
+# Formatting, linting, testing, dependency downloading
+format:
+	gofmt -s -w ./
 
-# Збірка з параметрами для різних платформ
-build-%:
-	CGO_ENABLED=0 GOOS=$(if $(findstring mac,$*),darwin,$(if $(findstring arm,$*),linux,$*)) GOARCH=$(if $(findstring windows,$*),amd64,$(if $(findstring mac,$*),amd64,$(if $(findstring arm,$*),arm64,amd64))) go build -v -o kbot -ldflags "-X main.appVersion=$(VERSION)"
+lint:
+	golint
 
-linux mac windows arm: get
-	$(MAKE) build-$@
+test:
+	go test -v
 
-# Створення Docker образу
+get:
+	go get
+
+# Build commands for different platforms
+linux: format get
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o kbot-linux -ldflags "-X main.appVersion=$(VERSION)"
+
+darwin: format get
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -v -o kbot-mac -ldflags "-X main.appVersion=$(VERSION)"
+
+windows: format get
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -v -o kbot-windows.exe -ldflags "-X main.appVersion=$(VERSION)"
+
+arm: format get
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -v -o kbot-arm -ldflags "-X main.appVersion=$(VERSION)"
+
+# Docker image creation
 image:
 	docker build --platform linux/amd64 -t $(REGISTRY)/$(APP):$(VERSION) .
 
-# Автентифікація в GCR та відправлення Docker образу
+# GCR authentication and Docker image pushing
 push:
 	gcloud auth configure-docker
 	docker push $(REGISTRY)/$(APP):$(VERSION)
-# Очищення зібраних артефактів
+
+# Clean up built artifacts
 clean:
-	rm -rf kbot
+	rm -rf kbot-*
 	docker rmi -f $(REGISTRY)/$(APP):$(VERSION) || true
