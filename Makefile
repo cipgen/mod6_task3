@@ -1,5 +1,5 @@
 APP=$(shell basename $(shell git remote get-url origin))
-REGISTRY=gcr.io/smiling-rhythm-404620
+REGISTRY=quay.io/smiling-rhythm-404620
 VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
 
 # Common targets
@@ -40,7 +40,6 @@ image:
 
 # GCR authentication and Docker image pushing
 push:
-	gcloud auth configure-docker
 	docker push $(REGISTRY)/$(APP):$(VERSION)
 
 # Clean up built artifacts
