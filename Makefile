@@ -23,7 +23,7 @@ clean:
 
 # Build commands
 build:
-    CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -v -o kbot -ldflags "-X=github.com/scottishwidow/kbot/cmd.appVersion=${VERSION}"
+    CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build -v -o kbot -ldflags "-X=github.com/scottishwidow/kbot/cmd.appVersion=${VERSION}"
 
 linux mac windows arm:
     $(MAKE) build GOOS=$(if $(filter $@,mac),darwin,$(if $(filter $@,windows),windows,linux)) GOARCH=$(if $(filter $@,arm),arm64,amd64)
