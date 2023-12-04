@@ -8,7 +8,8 @@ WORKDIR /go/src/app
 COPY . .
 
 # Compilation in a single layer, reducing the overall size
-RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -v -o kbot
+RUN make build
+# RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -v -o kbot
 
 # Intermediate stage to get ca-certificates
 FROM alpine:latest as certs

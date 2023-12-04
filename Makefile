@@ -1,48 +1,38 @@
-APP=$(shell basename $(shell git remote get-url origin))
-REGISTRY=quay.io/cipgen
-VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
+APP=$(basename $(git remote get-url origin))
+REGISTRY=ghcr.io/cipgen
+VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)
 
-# Common targets
-.PHONY: all format lint test get clean build image push
+.PHONY: format lint test get clean build image push
 
-# Build for all platforms
-all: linux darwin windows arm
-
-# Formatting, linting, testing, dependency downloading
+# General commands
 format:
-	gofmt -s -w ./
+    gofmt -s -w ./
 
 lint:
-	golint
+    golint
 
 test:
-	go test -v
+    go test -v
 
 get:
-	go get
+    go get
 
-# Build commands for different platforms
-linux: format get
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o kbot-linux -ldflags "-X main.appVersion=$(VERSION)"
-
-darwin: format get
-	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -v -o kbot-mac -ldflags "-X main.appVersion=$(VERSION)"
-
-windows: format get
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -v -o kbot-windows.exe -ldflags "-X main.appVersion=$(VERSION)"
-
-arm: format get
-	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -v -o kbot-arm -ldflags "-X main.appVersion=$(VERSION)"
-
-# Docker image creation
-image:
-	docker build --platform linux/amd64 -t $(REGISTRY)/$(APP):$(VERSION) .
-
-# GCR authentication and Docker image pushing
-push:
-	docker push $(REGISTRY)/$(APP):$(VERSION)
-
-# Clean up built artifacts
 clean:
-	rm -rf kbot-*
-	docker rmi -f $(REGISTRY)/$(APP):$(VERSION) || true
+    rm -rf kbot
+    docker rmi ${REGISTRY}/${APP}:${VERSION} || true
+
+# Build commands
+build:
+    CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -v -o kbot -ldflags "-X=github.com/scottishwidow/kbot/cmd.appVersion=${VERSION}"
+
+linux mac windows arm:
+    $(MAKE) build GOOS=$(if $(filter $@,mac),darwin,$(if $(filter $@,windows),windows,linux)) GOARCH=$(if $(filter $@,arm),arm64,amd64)
+
+# Docker commands
+image:
+    echo "Building image for Version: ${VERSION}, Architecture: ${GOARCH}"
+    docker build --platform ${GOOS:=linux}/${GOARCH:=amd64} . -t ${REGISTRY}/${APP}:${VERSION} -f Dockerfile
+
+push:
+    echo "Pushing image for Version: ${VERSION}, Architecture: ${GOARCH}"
+    docker push ${REGISTRY}/${APP}:${VERSION}
