@@ -1,10 +1,9 @@
-APP=$(basename $(git remote get-url origin))
+APP=$(shell basename $(shell git remote get-url origin))
 REGISTRY=cipgen
-VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)
+VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
+TARGETOS=linux #Linux darwin windows
+TARGETARCH=amd64 #arm64 amd64
 
-.PHONY: format lint test get clean build image push
-
-# General commands
 format:
 	gofmt -s -w ./
 
@@ -17,22 +16,15 @@ test:
 get:
 	go get
 
-clean:
-	rm -rf kbot
-	docker rmi ${REGISTRY}/${APP}:${VERSION} || true
+build: format get
+	CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o kbot -ldflags "-X="github.com/cipgen/kbot/cmd.appVersion=${VERSION}
 
-# Build commands
-build:
-	CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build -v -o kbot -ldflags "-X=github.com/scottishwidow/kbot/cmd.appVersion=${VERSION}"
-
-linux mac windows arm:
-	$(MAKE) build GOOS=$(if $(filter $@,mac),darwin,$(if $(filter $@,windows),windows,linux)) GOARCH=$(if $(filter $@,arm),arm64,amd64)
-
-# Docker commands
 image:
-	echo "Building image for Version: ${VERSION}, Architecture: ${GOARCH}"
-	docker build --platform ${GOOS:=linux}/${GOARCH:=amd64} . -t ${REGISTRY}/${APP}:${VERSION} -f Dockerfile
+	docker build . -t $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH)
 
 push:
-	echo "Pushing image for Version: ${VERSION}, Architecture: ${GOARCH}"
-	docker push ${REGISTRY}/${APP}:${VERSION}
+	docker push $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH)
+
+clean:
+	rm -rf kbot
+	docker rmi $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH) || true
