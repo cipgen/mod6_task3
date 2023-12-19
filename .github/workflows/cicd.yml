@@ -3,9 +3,6 @@ name: KBOT-CICD
 
 on: push
 
-env:
-  TARGETOS: linux
-  TARGETARCH: amd64
 
 jobs:
   ci:
@@ -41,7 +38,6 @@ jobs:
         
       run: make image push clean
       
-
   cd: 
     name: CD
     needs: ci
