@@ -22,11 +22,11 @@ build: format get
 	CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o kbot -ldflags "-X="github.com/cipgen/kbot/cmd.appVersion=${VERSION}
 
 image:
-	docker build . -t $(REGISTRY_DOCKER):$(VERSION)-$(TARG)
+	docker build . -t $(REGISTRY_DOCKER):$(VERSION)-$(TARGETOS)$(TARGETARCH)
 
 push:
-	docker push $(REGISTRY_DOCKER):$(VERSION)-$(TARG)
+	docker push $(REGISTRY_DOCKER):$(VERSION)-$(TARGETOS)$(TARGETARCH)
 
 clean:
 	rm -rf kbot
-	docker rmi $(REGISTRY_DOCKER):$(VERSION)-$(TARG) || true
+	docker rmi $(REGISTRY_DOCKER):$(VERSION)-$(TARGETOS)$(TARGETARCH) || true
