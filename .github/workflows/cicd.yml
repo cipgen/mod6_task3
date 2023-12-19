@@ -40,6 +40,7 @@ jobs:
         REGISTRY: ghcr.io/${{ github.actor }}
         
       run: make image push clean
+      
 
   cd: 
     name: CD
