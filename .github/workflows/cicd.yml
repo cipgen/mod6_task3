@@ -22,13 +22,14 @@ jobs:
         run: make test
       - name: Docker Hub login
         uses: docker/login-action@v3
-        with:
+        with: 
+          registry: ghcr.io
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }} 
       - name: Build&Push
         env:
           APP: "kbot"
-          REGISTRY: ${{ secrets.DOCKERHUB_TOKEN }}
+          REGISTRY: ghcr.io/${{ secrets.DOCKERHUB_USERNAME }}
         run: make image push 
           
   cd: 
