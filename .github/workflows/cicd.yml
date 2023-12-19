@@ -32,12 +32,13 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.MY_TOKEN }}
-        
+
 
     - name: Build&Push
       env:
         APP: "kbot"
         REGISTRY: ghcr.io/${{ github.actor }}
+        
       run: make image push clean
 
   cd: 
@@ -59,6 +60,7 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           git commit -am "update version $VERSION"
-          git push
+          git push https://${{ secrets.MY_TOKEN }}@github.com/cipgen/kbot.git
+
 
       
