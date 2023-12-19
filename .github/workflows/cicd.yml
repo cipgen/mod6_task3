@@ -38,9 +38,9 @@ jobs:
           fetch-depth: 0
       - run: echo "VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)" >> &GITHUB_ENV
 
-      - uses: mikefagah/yq@master
+      - uses: mikefarah/yq@master
         with:
-          cmd: yq -i '.image.tag=strenv(VERSION)' helm/value.yaml
+          cmd: yq -i '.image.tag=strenv(VERSION)' helm/values.yaml
 
       - run: 
           git config user.name github-actions
