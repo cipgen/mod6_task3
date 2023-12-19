@@ -32,6 +32,7 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.MY_TOKEN }}
+        
 
     - name: Build&Push
       env:
