@@ -4,6 +4,7 @@ REGISTRY = ghcr.io/cipgen
 VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
 TARGETOS=linux #Linux darwin windows
 TARGETARCH=amd64 #arm64 amd64
+TARGET=linux-amd64
 
 format:
 	gofmt -s -w ./
@@ -21,11 +22,11 @@ build: format get
 	CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o kbot -ldflags "-X="github.com/cipgen/kbot/cmd.appVersion=${VERSION}
 
 image:
-	docker build . -t $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH)1
+	docker build . -t $(REGISTRY)/$(APP):$(VERSION)-$(TARGET)
 
 push:
-	docker push $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH)
+	docker push $(REGISTRY)/$(APP):$(VERSION)-$(TARGET)
 
 clean:
 	rm -rf kbot
-	docker rmi $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH) || true
+	docker rmi $(REGISTRY)/$(APP):$(VERSION)-$(TARGET) || true
