@@ -9,6 +9,9 @@ stages:
   - push
   - clean
 
+before_script:
+  - go install golang.org/x/lint/golint@latest
+
 format:
   stage: format
   script:
