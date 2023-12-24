@@ -7,25 +7,25 @@ stages:
 test:
   stage: test
   script:
-    - echo 'TEST EXECUTION STARTED'
+    - echo "TEST EXECUTION STARTED"
     - make test
 
 build:
   stage: build
   script:
-    - echo 'BUILD EXECUTION STARTED'
+    - echo "BUILD EXECUTION STARTED"
     - make build
 
 image:
   stage: image
   script:
-    - echo 'IMAGE EXECUTION STARTED'
+    - echo "IMAGE EXECUTION STARTED"
     - make image
 
 push:
   stage: push
   script:
-    - echo 'PUSH EXECUTION STARTED'
+    - echo "PUSH EXECUTION STARTED"
     - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - make push
   
