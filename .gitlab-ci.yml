@@ -1,4 +1,4 @@
-image: docker:latest
+image: "docker:latest"
 
 stages:
   - test
@@ -18,11 +18,6 @@ build:
     - echo "BUILD EXECUTION STARTED"
     - make build
 
-image:
-  stage: image
-  script:
-    - echo "IMAGE EXECUTION STARTED"
-    - make image
 
 push:
   stage: push
