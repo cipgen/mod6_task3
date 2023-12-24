@@ -1,51 +1,34 @@
-image: golang:1.20
-
 stages:
-  - format
-  - lint
   - test
   - build
-  - build_image
-  - push
-  - clean
+  - dockerize
+
+variables:
+  REGISTRY: git@gitlab.com:cipgen/kbot.git
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
 
 before_script:
-  - go install golang.org/x/lint/golint@latest
-
-format:
-  stage: format
-  script:
-    - make format
-
-lint:
-  stage: lint
-  script:
-    - make lint
+  - echo "Starting CI/CD Pipeline for the project"
 
 test:
   stage: test
   script:
+    - echo "Running tests"
     - make test
 
 build:
   stage: build
   script:
+    - echo "Building the project"
     - make build
 
-build_image:
-  stage: build_image
+dockerize:
+  stage: dockerize
   script:
-    - echo "Building Docker Image"
-    - docker build -t cipgen/kbot:$CI_COMMIT_SHORT_SHA .
-    - docker push cipgen/kbot:$CI_COMMIT_SHORT_SHA
-
-push:
-  stage: push
-  script:
-    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    - echo "Building Docker Image using original Dockerfile"
+    - make image
+    - echo "Pushing Docker Image to registry"
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $REGISTRY
     - make push
-
-clean:
-  stage: clean
-  script:
-    - make clean
+  only:
+    - main
