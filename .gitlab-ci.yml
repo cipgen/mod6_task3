@@ -35,7 +35,9 @@ build:
 build_image:
   stage: build_image
   script:
-    - make image
+    - echo "Building Docker Image"
+    - docker build -t cipgen/kbot:$CI_COMMIT_SHORT_SHA .
+    - docker push cipgen/kbot:$CI_COMMIT_SHORT_SHA
 
 push:
   stage: push
