@@ -1,0 +1,43 @@
+variables:
+  REPO: "https://github.com/cipgen/kbot"
+  BRANCH: "main"
+  OS: "linux"    # Default value, can be overridden in CI/CD settings
+  ARCH: "amd64"  # Default value, can be overridden in CI/CD settings
+
+stages:
+  - clone
+  - test
+  - build
+  - image
+  - push
+
+clone:
+  stage: clone
+  script:
+    - echo 'CLONE REPOSITORY'
+    - git clone -b $BRANCH $REPO
+
+test:
+  stage: test
+  script:
+    - echo 'TEST EXECUTION STARTED'
+    - make test
+
+build:
+  stage: build
+  script:
+    - echo 'BUILD EXECUTION STARTED'
+    - make build
+
+image:
+  stage: image
+  script:
+    - echo 'IMAGE EXECUTION STARTED'
+    - make image
+
+push:
+  stage: push
+  script:
+    - echo 'PUSH EXECUTION STARTED'
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD  # Variables to be set in GitLab CI/CD settings
+    - make push
