@@ -1,3 +1,5 @@
+image: docker:latest
+
 stages:
   - test
   - build
@@ -28,4 +30,3 @@ push:
     - echo "PUSH EXECUTION STARTED"
     - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - make push
-  
