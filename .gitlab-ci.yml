@@ -1,34 +1,41 @@
+variables:
+  REPO: "https://github.com/cipgen/kbot"
+  BRANCH: "main"
+
 stages:
+  - clone
   - test
   - build
-  - dockerize
+  - image
+  - push
 
-variables:
-  REGISTRY: git@gitlab.com:cipgen/kbot.git
-  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+clone_repository:
+  stage: clone
+  script:
+    - echo 'CLONE REPOSITORY'
+    - git clone -b $BRANCH $REPO
 
-before_script:
-  - echo "Starting CI/CD Pipeline for the project"
-
-test:
+test_execution:
   stage: test
   script:
-    - echo "Running tests"
+    - echo 'TEST EXECUTION STARTED'
     - make test
 
-build:
+build_execution:
   stage: build
   script:
-    - echo "Building the project"
+    - echo 'BUILD EXECUTION STARTED'
     - make build
 
-dockerize:
-  stage: dockerize
+image_execution:
+  stage: image
   script:
-    - echo "Building Docker Image using original Dockerfile"
+    - echo 'IMAGE EXECUTION STARTED'
     - make image
-    - echo "Pushing Docker Image to registry"
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $REGISTRY
+
+push_execution:
+  stage: push
+  script:
+    - echo 'PUSH EXECUTION STARTED'
+    - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
     - make push
-  only:
-    - main
