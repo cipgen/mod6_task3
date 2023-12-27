@@ -35,9 +35,12 @@ image_execution:
   image: golang:1.21
   services:
     - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
   script:
     - echo 'IMAGE EXECUTION STARTED'
     - make image
+
 
 push_execution:
   stage: push
