@@ -1,4 +1,4 @@
-image: golang:1.21 
+image: golang:1.21
 
 variables:
   REPO: "https://github.com/cipgen/kbot"
@@ -14,10 +14,9 @@ stages:
 clone_repository:
   stage: clone
   script:
-  - echo 'CLONE REPOSITORY'
-  - rm -rf kbot || true  # This will ignore errors if the directory doesn't exist
-  - git clone -b $BRANCH $REPO
-
+    - echo 'CLONE REPOSITORY'
+    - rm -rf kbot || true  # This will ignore errors if the directory doesn't exist
+    - git clone -b $BRANCH $REPO
 
 test_execution:
   stage: test
@@ -33,6 +32,9 @@ build_execution:
 
 image_execution:
   stage: image
+  image: golang:1.21
+  services:
+    - docker:dind
   script:
     - echo 'IMAGE EXECUTION STARTED'
     - make image
@@ -43,5 +45,3 @@ push_execution:
     - echo 'PUSH EXECUTION STARTED'
     - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
     - make push
-
-
