@@ -12,8 +12,10 @@ stages:
 clone_repository:
   stage: clone
   script:
-    - echo 'CLONE REPOSITORY'
-    - git clone -b $BRANCH $REPO
+  - echo 'CLONE REPOSITORY'
+  - rm -rf kbot || true  # This will ignore errors if the directory doesn't exist
+  - git clone -b $BRANCH $REPO
+
 
 test_execution:
   stage: test
@@ -40,4 +42,4 @@ push_execution:
     - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
     - make push
 
-    
+
