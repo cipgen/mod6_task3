@@ -37,6 +37,8 @@ image_execution:
     - docker:dind
   variables:
     DOCKER_HOST: tcp://docker:2375
+  before_script:
+    - apt-get update && apt-get install -y docker.io
   script:
     - echo 'IMAGE EXECUTION STARTED'
     - make image
