@@ -32,14 +32,17 @@ test_execution:
 build_execution:
   stage: build
   before_script:
+    - export V=$(describe --tags --abbrev=0)
     - export VERSION=$(git rev-parse --short HEAD)
     - echo "Version is $VERSION"
+    - echo "V is $V"
   script:
     - gofmt -s -w ./
     - go get
-    - CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o ./${BUILDS_DIR}/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=$V-$VERSION"
+    - CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o ./${BUILDS_DIR}/$APP -ldflags "-X=${BUILD_URL}/cmd.appVersion=$V-$VERSION"
     #- echo 'BUILD EXECUTION STARTED'
     #- make build TARGETOS=$OS TARGETARCH=$ARCH
+
 
 
 image_execution:
