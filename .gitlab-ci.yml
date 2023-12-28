@@ -3,6 +3,7 @@ variables:
   SUPPORT_IMAGE: "docker:24.0.7"
   SUPPORT_SERVICE: "docker:24.0.7-dind" 
   GIT_STRATEGY: clone
+  VER: v1.0.8
   GIT_DEPTH: 0
 
   TARGETOS: linux
@@ -49,7 +50,7 @@ image-job:
     - name: $SUPPORT_SERVICE
       alias: docker
   variables:
-    IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${VERSION}-${TARGETOS}-${TARGETARCH}
+    IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - docker build . -t $IMAGE_TAG --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
