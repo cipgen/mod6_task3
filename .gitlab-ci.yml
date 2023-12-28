@@ -24,7 +24,7 @@ vars-job:
   stage: create_vars
   script:
     - echo "VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)" >> build.env
-    - echo "BUILD_URL=github.com/dm-ol/kbot" >> build.env
+    - echo "BUILD_URL=github.com/cipgen/kbot" >> build.env
   artifacts:
     reports:
       dotenv: build.env
