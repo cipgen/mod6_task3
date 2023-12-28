@@ -5,7 +5,7 @@ variables:
   REPO: "https://github.com/cipgen/kbot"
   BRANCH: "main"
   REGISTRY: "registry.gitlab.com/cipgen"
-  VERSION: v1.0.9
+  V: v1.0.9
   APP: "kbot"
 
 
@@ -32,12 +32,12 @@ test_execution:
 build_execution:
   stage: build
   before_script:
-    - export VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)
+    - export VERSION=$(git rev-parse --short HEAD)
     - echo "Version is $VERSION"
   script:
     - gofmt -s -w ./
     - go get
-    - CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o ./${BUILDS_DIR}/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=${VERSION}"
+    - CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o ./${BUILDS_DIR}/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=$V-$VERSION"
     #- echo 'BUILD EXECUTION STARTED'
     #- make build TARGETOS=$OS TARGETARCH=$ARCH
 
