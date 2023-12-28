@@ -1,52 +1,57 @@
-image: golang:1.21
-
 variables:
-  REPO: "https://github.com/cipgen/kbot"
-  BRANCH: "main"
+  EXECUTION_IMAGE: "golang:1.21.4"
+  SUPPORT_IMAGE: "docker:24.0.7"
+  SUPPORT_SERVICE: "docker:24.0.7-dind" 
+  GIT_STRATEGY: clone
+  GIT_DEPTH: 0
+
+  TARGETOS: linux
+  TARGETARCH: amd64
+  BUILDS_DIR: out
+
+default:
+  image:
+    name: $EXECUTION_IMAGE
 
 stages:
-  - clone
+  - create_vars
+  - info        
   - test
   - build
   - image
-  - push
 
-clone_repository:
-  stage: clone
+vars-job:
+  stage: create_vars
   script:
-    - echo 'CLONE REPOSITORY'
-    - rm -rf kbot || true  # This will ignore errors if the directory doesn't exist
-    - git clone -b $BRANCH $REPO
-
-test_execution:
-  stage: test
+    - echo "VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)" >> build.env
+    - echo "BUILD_URL=github.com/dm-ol/kbot" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+    
+test-job:
+  stage: test    
   script:
-    - echo 'TEST EXECUTION STARTED'
-    - make test
+    - go test -v
 
-build_execution:
+build-job:
   stage: build
   script:
-    - echo 'BUILD EXECUTION STARTED'
-    - make build
+    - gofmt -s -w ./
+    - go get
+    - CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o ./${BUILDS_DIR}/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=${VERSION}"
 
-image_execution:
+
+image-job:
   stage: image
-  image: golang:1.21
+  image: $SUPPORT_IMAGE
   services:
-    - docker:dind
+    - name: $SUPPORT_SERVICE
+      alias: docker
   variables:
-    DOCKER_HOST: tcp://docker:2375
-  before_script:
-    - apt-get update && apt-get install -y docker.io
+    IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${VERSION}-${TARGETOS}-${TARGETARCH}
   script:
-    - echo 'IMAGE EXECUTION STARTED'
-    - make image
-
-
-push_execution:
-  stage: push
-  script:
-    - echo 'PUSH EXECUTION STARTED'
-    - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
-    - make push
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - docker build . -t $IMAGE_TAG --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
+    - docker push $IMAGE_TAG
+    - docker logout
