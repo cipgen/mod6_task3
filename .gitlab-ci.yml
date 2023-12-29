@@ -19,13 +19,11 @@ stages:
 clone:
   stage: clone
   script:
-    - echo 'ClONE REPOSITORY'
+    - echo 'CLONE REPOSITORY'
     - |
-      if [ -d $APP ]; then
-        rm -r $APP
-        echo "Folder removed"
-      else
-        echo "Folder dosn't exists"
+      if [ -d "$APP" ]; then
+        echo "Removing existing directory: $APP"
+        rm -rf "$APP"
       fi
     - git clone -b ${BRANCH} ${REPO}
 
