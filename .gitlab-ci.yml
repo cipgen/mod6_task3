@@ -2,35 +2,34 @@ image: golang:1.21
 
 variables:
   SUPPORT_IMAGE: "docker:latest"
-  SUPPORT_SERVICE: "docker:24.0.7-dind" 
+  SUPPORT_SERVICE: "docker:24.0.7-dind"
   GIT_STRATEGY: clone
   VER: v1.0.8
   GIT_DEPTH: 1
-
   TARGETOS: linux
   TARGETARCH: amd64
   BUILDS_DIR: out
-
+  BUILD_URL: "github.com/cipgen/kbot" # Added this variable for use in build-job
 
 stages:
   - create_vars
-  - info        
+  - info
   - test
   - build
   - image
   - push
 
 vars-job:
-  stage: create_vars  
+  stage: create_vars
   script:
     - echo "VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)" >> build.env
-    - echo "BUILD_URL=github.com/cipgen/kbot" >> build.env
+    - echo "BUILD_URL=${BUILD_URL}" >> build.env # Using the BUILD_URL variable
   artifacts:
     reports:
       dotenv: build.env
-    
+
 test-job:
-  stage: test    
+  stage: test
   script:
     - go test -v
 
@@ -40,6 +39,8 @@ build-job:
     - gofmt -s -w ./
     - go get
     - CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o ./${BUILDS_DIR}/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=${VERSION}"
+  dependencies:
+    - vars-job # Added dependency to ensure VERSION is set
 
 image-job:
   stage: image
@@ -52,11 +53,10 @@ image-job:
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - docker build . -t $IMAGE_TAG --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
+    - docker save $IMAGE_TAG > image.tar
   artifacts:
     paths:
       - image.tar
-  script:
-    - docker save $IMAGE_TAG > image.tar
 
 push-job:
   stage: push
