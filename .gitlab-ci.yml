@@ -7,6 +7,7 @@ variables:
   REGISTRY: "registry.gitlab.com/cipgen"
   VERSION: v1.0.9
   APP: "kbot"
+  SUPPORT_IMAGE: "docker:24.0.7"
   SUPPORT_SERVICE: "docker:24.0.7-dind" 
 
   TARGETOS: linux
@@ -56,7 +57,7 @@ image_build_execution:
 
 push_execution:
   stage: push
-  image: docker:latest
+  image: $SUPPORT_IMAGE
   services:
     - name: $SUPPORT_SERVICE
       alias: docker
