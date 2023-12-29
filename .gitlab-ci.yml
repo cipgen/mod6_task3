@@ -2,7 +2,7 @@ image: golang:1.21
 
 variables:
   SUPPORT_IMAGE: "docker:24.0.7"
-  SUPPORT_SERVICE: "docker:dind" 
+  SUPPORT_SERVICE: "docker:24.0.7-dind" 
   GIT_STRATEGY: clone
   VER: v1.0.9
   GIT_DEPTH: 1
