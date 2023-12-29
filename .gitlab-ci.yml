@@ -1,3 +1,5 @@
+image: golang:1.21
+
 variables:
   REPO: "https://github.com/cipgen/kbot"
   BRANCH: "main"
