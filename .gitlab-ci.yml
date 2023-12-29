@@ -1,68 +1,60 @@
-# Docker and Git Configuration
+# Конфигурация Docker
 variables:
   SUPPORT_IMAGE: "docker:24.0.7"
   SUPPORT_SERVICE: "docker:24.0.7-dind"
+
+# Конфигурация Git
+  GIT_STRATEGY: clone
+  GIT_DEPTH: 1
+
+# Конфигурация сборки
   VER: v1.0.8
   TARGETOS: linux
   TARGETARCH: amd64
+  BUILDS_DIR: out
 
 stages:
-  - clone
+  - create_vars
+  - info        
   - test
   - build
-  - makeimage
-  - push
+  - image
 
-# Clone stage for checking out the code
-clone-job:
-  stage: clone
+# Задание для создания необходимых переменных
+vars-job:
+  stage: create_vars
   script:
-    - git clone <repository_url>
-    - echo "VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)" > build.env
+    - echo "VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)" >> build.env
     - echo "BUILD_URL=github.com/cipgen/kbot" >> build.env
   artifacts:
     reports:
       dotenv: build.env
-    expire_in: 1 hour
 
-# Test stage
+# Задание для тестирования
 test-job:
-  stage: test
+  stage: test    
   script:
     - go test -v
-  needs:
-    - clone-job
 
-# Build stage
+# Задание для сборки приложения
 build-job:
   stage: build
   script:
     - gofmt -s -w ./
-    - go get -d -v
-    - CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o ./build/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=${VERSION}"
-  artifacts:
-    paths:
-      - ./build/kbot
-    expire_in: 1 hour
-  needs:
-    - test-job
+    - go get
+    - CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o ./${BUILDS_DIR}/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=${VERSION}"
 
-# Image creation stage
-makeimage-job:
-  stage: makeimage
+# Задание для сборки и отправки образа Docker
+image-job:
+  stage: image
   image: $SUPPORT_IMAGE
   services:
     - name: $SUPPORT_SERVICE
       alias: docker
+  variables:
+    IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}
   script:
-    - docker build . -t ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH} --cache-from ${CI_REGISTRY_IMAGE}:latest --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
-  needs:
-    - build-job
-
-# Push stage
-push-job:
-  stage: push
-  script:
-    - docker push ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}
-  needs:
-    - makeimage-job
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - docker build . -t $IMAGE_TAG --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
+    - docker push $IMAGE_TAG
+    - docker logout
