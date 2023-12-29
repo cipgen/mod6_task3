@@ -67,6 +67,7 @@ push-job:
   dependencies:
     - image-job
   script:
+    - echo "IMAGE_TAG: $IMAGE_TAG" # Debug statement to print the IMAGE_TAG
     - docker load < image.tar
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - docker push $IMAGE_TAG
