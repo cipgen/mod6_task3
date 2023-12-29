@@ -1,7 +1,7 @@
 variables:
   REPO: "https://github.com/cipgen/kbot"
   BRANCH: "main"
-  REGISTRY: "registry.gitlab.com/viktor-mazepa1"
+  REGISTRY: "registry.gitlab.com/cipgen"
   APP: "kbot"
   GHCR: "https://registry.gitlab.com"
   USER_NAME: cipgen
