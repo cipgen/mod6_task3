@@ -1,75 +1,59 @@
-image: golang:1.21
-
 variables:
-  SUPPORT_IMAGE: "docker:latest"
-  SUPPORT_SERVICE: "docker:24.0.7-dind"
-  GIT_STRATEGY: clone
-  VER: v1.0.8
-  GIT_DEPTH: 1
-  TARGETOS: linux
-  TARGETARCH: amd64
-  BUILDS_DIR: out
-  BUILD_URL: "github.com/cipgen/kbot"
+  REPO: "https://github.com/cipgen/kbot"
+  BRANCH: "main"
+  REGISTRY: "registry.gitlab.com/viktor-mazepa1"
+  APP: "kbot"
+  GHCR: "https://registry.gitlab.com"
+  USER_NAME: cipgen
+  
 
 stages:
-  - create_vars
-  - info
+  - clone
   - test
   - build
-  - image
+  - image_
   - push
 
-vars-job:
-  stage: create_vars
+clone:
+  stage: clone
   script:
-    - echo "VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)" >> build.env
-    - echo "BUILD_URL=${BUILD_URL}" >> build.env
-  artifacts:
-    reports:
-      dotenv: build.env
-    expire_in: 1 hour  # Убедитесь, что срок действия достаточно долгий
+    - echo 'ClONE REPOSITORY'
+    - |
+      if [ -d $APP ]; then
+        rm -r $APP
+        echo "Folder removed"
+      else
+        echo "Folder dosn't exists"
+      fi
+    - git clone -b ${BRANCH} ${REPO}
 
-test-job:
+cache:
+  paths:
+  - kbot/
+  
+test:
   stage: test
   script:
-    - go test -v
+    - echo 'TEST STARTED'
+    - cd $APP
+    - make test
+  dependencies:
+    - clone
 
-build-job:
+build:
   stage: build
-  script:
-    - gofmt -s -w ./
-    - go get
-    - CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o ./${BUILDS_DIR}/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=${VERSION}"
   dependencies:
-    - vars-job
-
-image-job:
-  stage: image
-  image: $SUPPORT_IMAGE
-  services:
-    - name: $SUPPORT_SERVICE
-      alias: docker
+    - test
   script:
-    - echo "IMAGE_TAG=${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}" > image_tag.env
-    - docker build -t $IMAGE_TAG .
-    - docker save $IMAGE_TAG > image.tar
-  artifacts:
-    paths:
-      - image_tag.env
-      - image.tar
-    expire_in: 1 hour  # Убедитесь, что срок действия достаточно долгий
+    - echo 'BUILD STARTED'
+    - cd $APP
+    - make build TARGETOS=$OS TARGETARCH=$ARCH
 
-push-job:
-  stage: push
-  image: $SUPPORT_IMAGE
-  services:
-    - name: $SUPPORT_SERVICE
-      alias: docker
+image_:
+  stage: image_
   dependencies:
-    - image-job
+    - build
   script:
-    - source image_tag.env
-    - docker load < image.tar
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - docker push $IMAGE_TAG
-    - docker logout
+    - echo 'IMAGE STARTED'
+    - cd $APP
+    - make image REGISTRY=$REGISTRY APP=$APP TARGETOS=$OS TARGETARCH=$ARCH
