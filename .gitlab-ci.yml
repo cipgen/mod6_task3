@@ -9,7 +9,7 @@ variables:
   TARGETOS: linux
   TARGETARCH: amd64
   BUILDS_DIR: out
-  BUILD_URL: "github.com/cipgen/kbot" # Added this variable for use in build-job
+  BUILD_URL: "github.com/cipgen/kbot"
 
 stages:
   - create_vars
@@ -23,7 +23,7 @@ vars-job:
   stage: create_vars
   script:
     - echo "VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)" >> build.env
-    - echo "BUILD_URL=${BUILD_URL}" >> build.env # Using the BUILD_URL variable
+    - echo "BUILD_URL=${BUILD_URL}" >> build.env
   artifacts:
     reports:
       dotenv: build.env
@@ -40,7 +40,7 @@ build-job:
     - go get
     - CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o ./${BUILDS_DIR}/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=${VERSION}"
   dependencies:
-    - vars-job # Added dependency to ensure VERSION is set
+    - vars-job
 
 image-job:
   stage: image
@@ -48,15 +48,15 @@ image-job:
   services:
     - name: $SUPPORT_SERVICE
       alias: docker
-  variables:
-    IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}
   script:
+    - echo "IMAGE_TAG=${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}" > image_tag.env
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - docker build . -t $IMAGE_TAG --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
     - docker save $IMAGE_TAG > image.tar
   artifacts:
     paths:
       - image.tar
+      - image_tag.env
 
 push-job:
   stage: push
@@ -67,6 +67,7 @@ push-job:
   dependencies:
     - image-job
   script:
+    - source image_tag.env
     - echo "IMAGE_TAG: $IMAGE_TAG" # Debug statement to print the IMAGE_TAG
     - docker load < image.tar
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
