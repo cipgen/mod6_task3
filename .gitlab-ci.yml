@@ -27,6 +27,7 @@ vars-job:
   artifacts:
     reports:
       dotenv: build.env
+    expire_in: 1 hour  # Убедитесь, что срок действия достаточно долгий
 
 test-job:
   stage: test
@@ -49,22 +50,14 @@ image-job:
     - name: $SUPPORT_SERVICE
       alias: docker
   script:
-  - echo "IMAGE_TAG=${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}" > image_tag.env
-  - echo "IMAGE_TAG=$IMAGE_TAG"
-  - echo "TARGETOS=$TARGETOS"
-  - echo "TARGETARCH=$TARGETARCH"
-  - |
-    if [ -z "$CI_REGISTRY_USER" ] || [ -z "$CI_REGISTRY_PASSWORD" ]; then
-      echo "Docker registry credentials are not set."
-      exit 1
-    else
-      echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    fi
-
+    - echo "IMAGE_TAG=${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}" > image_tag.env
+    - docker build -t $IMAGE_TAG .
+    - docker save $IMAGE_TAG > image.tar
   artifacts:
     paths:
-      - image.tar
       - image_tag.env
+      - image.tar
+    expire_in: 1 hour  # Убедитесь, что срок действия достаточно долгий
 
 push-job:
   stage: push
@@ -76,7 +69,6 @@ push-job:
     - image-job
   script:
     - source image_tag.env
-    - echo "IMAGE_TAG $IMAGE_TAG"
     - docker load < image.tar
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - docker push $IMAGE_TAG
