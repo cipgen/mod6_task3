@@ -49,12 +49,18 @@ image-job:
     - name: $SUPPORT_SERVICE
       alias: docker
   script:
-    - echo "IMAGE_TAG=${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}" > image_tag.env
-    - echo "IMAGE_TAG=$IMAGE_TAG"
-    - echo "TARGETOS=$TARGETOS"
-    - echo "TARGETARCH=$TARGETARCH"
-    - docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - docker build . -t $IMAGE_TAG --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
+  - echo "IMAGE_TAG=${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}" > image_tag.env
+  - echo "IMAGE_TAG=$IMAGE_TAG"
+  - echo "TARGETOS=$TARGETOS"
+  - echo "TARGETARCH=$TARGETARCH"
+  - |
+    if [ -z "$CI_REGISTRY_USER" ] || [ -z "$CI_REGISTRY_PASSWORD" ]; then
+      echo "Docker registry credentials are not set."
+      exit 1
+    else
+      echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    fi
+
   artifacts:
     paths:
       - image.tar
