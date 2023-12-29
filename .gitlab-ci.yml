@@ -1,17 +1,16 @@
-# Конфигурация Docker
-variables:
-  SUPPORT_IMAGE: "docker:24.0.7"
-  SUPPORT_SERVICE: "docker:24.0.7-dind"
+image: golang:1.21
 
-# Конфигурация Git
+variables:
+  SUPPORT_IMAGE: "docker:latest"
+  SUPPORT_SERVICE: "docker:dind-latest"
   GIT_STRATEGY: clone
+  VER: v1.0.9
   GIT_DEPTH: 1
 
-# Конфигурация сборки
-  VER: v1.0.8
   TARGETOS: linux
   TARGETARCH: amd64
   BUILDS_DIR: out
+
 
 stages:
   - create_vars
@@ -20,23 +19,20 @@ stages:
   - build
   - image
 
-# Задание для создания необходимых переменных
 vars-job:
-  stage: create_vars
+  stage: create_vars  
   script:
     - echo "VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)" >> build.env
     - echo "BUILD_URL=github.com/cipgen/kbot" >> build.env
   artifacts:
     reports:
       dotenv: build.env
-
-# Задание для тестирования
+    
 test-job:
   stage: test    
   script:
     - go test -v
 
-# Задание для сборки приложения
 build-job:
   stage: build
   script:
@@ -44,7 +40,7 @@ build-job:
     - go get
     - CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o ./${BUILDS_DIR}/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=${VERSION}"
 
-# Задание для сборки и отправки образа Docker
+
 image-job:
   stage: image
   image: $SUPPORT_IMAGE
