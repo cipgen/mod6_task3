@@ -43,7 +43,7 @@ image_building:
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - echo "Building image with tag ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}"
-    - docker build . -t ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH} --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
+    - docker build . -t ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}
     - echo "Pushing image ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}"
     - docker push ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}
     - docker logout
