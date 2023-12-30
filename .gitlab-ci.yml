@@ -43,6 +43,7 @@ build_execution:
     - echo 'BUILD EXECUTION STARTED'
     - make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
   
+  
 
 image_building:
   stage: image
