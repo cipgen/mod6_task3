@@ -11,7 +11,8 @@ variables:
 
   SUPPORT_IMAGE: "docker:19.03.12"
   SUPPORT_SERVICE: "docker:19.03.12-dind" 
-
+  TARGETOS: linux
+  TARGETARCH: amd64
 
 stages:
   - clone
@@ -54,7 +55,7 @@ image_execution:
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - echo "Building image with tag ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}"
-    - docker build . -t ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}
+    - docker build . -t ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH} --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
     - echo "Pushing image ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}"
     - docker push ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}
     - docker logout
