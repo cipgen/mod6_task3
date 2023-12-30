@@ -2,7 +2,7 @@ APP=$(shell basename $(shell git remote get-url origin))
 REGISTRY=cipgen
 #REGISTRY = ghcr.io/cipgen
 VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
-VER=1.0.9
+VER=v1.0.9
 TARGETOS=linux #Linux darwin windows
 TARGETARCH=amd64 #arm64 amd64
 TARGET=linux-amd64
