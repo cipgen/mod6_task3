@@ -44,10 +44,11 @@ build_execution:
     - make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
   
 
-image_execution:
-  stage: image docker:24.0.7
+image_building:
+  stage: image
+  image: docker:24.0.1
   services:
-    - docker:24.0.7-dind
+     - docker:24.0.1-dind
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - echo "Building image with tag ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}"
