@@ -45,8 +45,8 @@ build_execution:
 
 image_execution:
   stage: image
-  dependencies:
-  - build
+  #dependencies:
+  #- build
   script:
   - echo 'IMAGE STARTED'
   - cd $APP
