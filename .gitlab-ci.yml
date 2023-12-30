@@ -4,11 +4,13 @@ variables:
   REPO: "https://github.com/cipgen/mod6_task3"
   BRANCH: "main"
   REGISTRY: "registry.gitlab.com/cipgen"
-  VER: "v1.0.9"
+  OS: "linux"
+  ARCH: "amd64"
+  VER: "v1.0.10"
   APP: "kbot"
+
   TARGETOS: linux
   TARGETARCH: amd64
-
 
 stages:
   - clone
@@ -39,14 +41,13 @@ build_execution:
     - VERSION="${VER}-${SHORTVERS}"
     - echo "Full version is $VERSION"
     - echo 'BUILD EXECUTION STARTED'
-    - make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VER
+    - make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
+  
 
-
-image_building:
-  stage: image
-  image: docker:24.0.1
+image_execution:
+  stage: image docker:24.0.7
   services:
-     - docker:24.0.1-dind
+    - docker:24.0.7-dind
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - echo "Building image with tag ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}"
@@ -54,3 +55,4 @@ image_building:
     - echo "Pushing image ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}"
     - docker push ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}
     - docker logout
+
