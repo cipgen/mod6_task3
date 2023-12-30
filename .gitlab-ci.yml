@@ -42,8 +42,9 @@ build_execution:
     - VERSION="${VER}-${SHORTVERS}"
     - echo "Full version is $VERSION"
     - echo 'BUILD EXECUTION STARTED'
-    - make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
-  
+    #- make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
+    - CGO_ENABLED=0 GOOS=${OS} GOARCH=${ARCH} go build -v -o ./${BUILDS_DIR}/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=${VER}"
+
 
 image_execution:
   stage: image
@@ -55,8 +56,6 @@ image_execution:
     IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - echo "Building image with tag ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}"
-    - docker build . -t $IMAGE_TAG --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
-    - echo "Pushing image ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}"
-    - docker push $IMAGE_TAG
+    - docker build . -t ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}
+    - docker push ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}
     - docker logout
