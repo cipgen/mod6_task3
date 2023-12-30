@@ -51,10 +51,12 @@ image_execution:
   services:
     - name: $SUPPORT_SERVICE
       alias: docker
+  variables:
+    IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - echo "Building image with tag ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}"
-    - docker build . -t ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH} --build-arg TARGETOS=${OS} --build-arg TARGETARCH=${ARCH}
+    - docker build . -t $IMAGE_TAG --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
     - echo "Pushing image ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}"
-    - docker push ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}
+    - docker push $IMAGE_TAG
     - docker logout
