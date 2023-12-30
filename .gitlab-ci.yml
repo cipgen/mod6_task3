@@ -9,10 +9,13 @@ variables:
   VER: "v1.0.9"
   APP: "kbot"
 
-  SUPPORT_IMAGE: "docker:19.03.12"
-  SUPPORT_SERVICE: "docker:19.03.12-dind" 
+
+  SUPPORT_IMAGE: "docker:24.0.7"
+  SUPPORT_SERVICE: "docker:24.0.7-dind" 
+
   TARGETOS: linux
   TARGETARCH: amd64
+  BUILDS_DIR: out
 
 stages:
   - clone
