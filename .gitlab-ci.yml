@@ -4,11 +4,8 @@ variables:
   REPO: "https://github.com/cipgen/mod6_task3"
   BRANCH: "main"
   REGISTRY: "registry.gitlab.com/cipgen"
-  OS: "linux"
-  ARCH: "amd64"
   VER: "v1.0.10"
   APP: "kbot"
-
   TARGETOS: linux
   TARGETARCH: amd64
 
@@ -16,7 +13,6 @@ stages:
   - clone
   - test
   - build
-  - image
   - push
 
 clone_repository:
@@ -41,20 +37,19 @@ build_execution:
     - VERSION="${VER}-${SHORTVERS}"
     - echo "Full version is $VERSION"
     - echo 'BUILD EXECUTION STARTED'
-    - make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
-  
+    - make build TARGETOS=$TARGETOS TARGETARCH=$TARGETARCH VERSION=$VERSION
   
 
-image_building:
-  stage: image
+push:
+  stage: push
   image: docker:24.0.1
   services:
      - docker:24.0.1-dind
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - echo "Building image with tag ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}"
-    - docker build . -t ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH} --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
-    - echo "Pushing image ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}"
-    - docker push ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}
+    - echo "Building image with tag ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}"
+    - docker build . -t ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH} --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
+    - echo "Pushing image ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}"
+    - docker push ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}
     - docker logout
 
