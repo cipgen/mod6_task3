@@ -42,8 +42,8 @@ build_execution:
     - VERSION="${VER}-${SHORTVERS}"
     - echo "Full version is $VERSION"
     - echo 'BUILD EXECUTION STARTED'
-    #- make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
-    - CGO_ENABLED=0 GOOS=${OS} GOARCH=${ARCH} go build -v -o ./${BUILDS_DIR}/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=${VER}"
+    - make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
+    #- CGO_ENABLED=0 GOOS=${OS} GOARCH=${ARCH} go build -v -o ./${BUILDS_DIR}/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=${VER}"
 
 
 image_execution:
@@ -52,8 +52,6 @@ image_execution:
   services:
     - name: $SUPPORT_SERVICE
       alias: docker
-  variables:
-    IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - docker build . -t ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}
