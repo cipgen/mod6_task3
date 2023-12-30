@@ -59,9 +59,8 @@ image_execution:
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     #- docker build . -t $IMAGE_TAG 
-    - make image REGISTRY=$REGISTRY APP=$APP VERSION=$VERSION TARGETOS=$OS TARGETARCH=$ARCH
+    - docker build . -t ${CI_REGISTRY_IMAGE}/kbot:v1.0.7-e290cca-linux-amd64
     - docker push $IMAGE_TAG
     - docker logout
 
      #--build-arg TARGETOS=$OS --build-arg TARGETARCH=$ARCH
-    
