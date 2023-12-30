@@ -51,10 +51,9 @@ build_execution:
 image_execution:
   stage: image
   dependencies:
-  - image_execution
+    - build_execution
   script:
-  - VERSION=$(cat output/art_version)
-  - echo "Using version $VERSION for deployment"
-  - echo 'IMAGE STARTED'
-  - make image REGISTRY=$REGISTRY APP=$APP VERSION=$VERSION TARGETOS=$OS  TARGETARCH=$ARCH
-
+    - VERSION=$(cat output/art_version)
+    - echo "Using version $VERSION for deployment"
+    - echo 'IMAGE STARTED'
+    - make image REGISTRY=$REGISTRY APP=$APP VERSION=$VERSION TARGETOS=$OS TARGETARCH=$ARCH
