@@ -38,6 +38,7 @@ build_execution:
     - export SHORTVERS=$(git rev-parse --short HEAD)
     - echo "Short version is $SHORTVERS"
   script:
+    - cd $APP
     - VERSION="${VER}-${SHORTVERS}"
     - echo "Full version is $VERSION"
     - echo 'BUILD EXECUTION STARTED'
@@ -45,8 +46,8 @@ build_execution:
 
 image_execution:
   stage: image
-  #dependencies:
-  #- build
+  dependencies:
+  - image_execution
   script:
   - echo 'IMAGE STARTED'
   - cd $APP
