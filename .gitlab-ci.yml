@@ -53,6 +53,8 @@ image_execution:
       alias: docker
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - docker build . -t ${CI_REGISTRY_IMAGE}:TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
-    - docker push ${CI_REGISTRY_IMAGE}:TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
+    - echo "Building image with tag ${CI_REGISTRY_IMAGE}:${VERSION}-${OS}-${ARCH}"
+    - docker build . -t ${CI_REGISTRY_IMAGE}:${VERSION}-${OS}-${ARCH}
+    - echo "Pushing image ${CI_REGISTRY_IMAGE}:${VERSION}-${OS}-${ARCH}"
+    - docker push ${CI_REGISTRY_IMAGE}:${VERSION}-${OS}-${ARCH}
     - docker logout
