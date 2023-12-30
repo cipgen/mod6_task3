@@ -42,7 +42,7 @@ build_execution:
     - VERSION="${VER}-${SHORTVERS}"
     - echo "Full version is $VERSION"
     - echo 'BUILD EXECUTION STARTED'
-    - make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
+    - make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VER
     #- CGO_ENABLED=0 GOOS=${OS} GOARCH=${ARCH} go build -v -o ./${BUILDS_DIR}/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=${VER}"
 
 
