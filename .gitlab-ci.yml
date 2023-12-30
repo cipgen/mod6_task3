@@ -36,10 +36,9 @@ build_execution:
   before_script:
     - export SHORTVERS=$(git rev-parse --short HEAD)
     - echo "Short version is $SHORTVERS"
-  variables:
-    VERSION: $VER-$SHORTVERS
-    - echo "Full version is $VERSION"
   script:
+    - VERSION="${VER} - ${SHORTVERS}"
+    - echo "Short version is $VERSION"
     - echo 'BUILD EXECUTION STARTED'
     - make build TARGETOS=$OS TARGETARCH=$ARCH
 
