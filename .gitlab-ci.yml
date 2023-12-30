@@ -15,7 +15,6 @@ variables:
 
   TARGETOS: linux
   TARGETARCH: amd64
-  BUILDS_DIR: out
 
 stages:
   - clone
