@@ -38,16 +38,23 @@ build_execution:
     - export SHORTVERS=$(git rev-parse --short HEAD)
     - echo "Short version is $SHORTVERS"
   script:
+    - mkdir -p output
     - VERSION="${VER}-${SHORTVERS}"
+    - echo $VERSION > output/art_version
     - echo "Full version is $VERSION"
     - echo 'BUILD EXECUTION STARTED'
     - make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
+  artifacts:
+    paths:
+      - output/
 
 image_execution:
   stage: image
   dependencies:
   - image_execution
   script:
+  - VERSION=$(cat output/art_version)
+  - echo "Using version $VERSION for deployment"
   - echo 'IMAGE STARTED'
-  - make image REGISTRY=$REGISTRY APP=$APP TARGETOS=$OS TARGETARCH=$ARCH
+  - make image REGISTRY=$REGISTRY APP=$APP VERSION=$VERSION TARGETOS=$OS  TARGETARCH=$ARCH
 
