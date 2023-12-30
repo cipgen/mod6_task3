@@ -33,16 +33,17 @@ test_execution:
     - echo 'TEST EXECUTION STARTED'
     - make test
 
-
 build_execution:
   stage: build
   before_script:
     - export SHORTVERS=$(git rev-parse --short HEAD)
     - echo "Short version is $SHORTVERS"
   script:
-    - export VERSION="${VER}-${SHORTVERS}"
+    - VERSION="${VER}-${SHORTVERS}"
     - echo "Full version is $VERSION"
+    - echo 'BUILD EXECUTION STARTED'
     - make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
+  
 
 image_execution:
   stage: image
@@ -52,7 +53,6 @@ image_execution:
       alias: docker
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - docker build . -t ${CI_REGISTRY_IMAGE}:${VERSION}
-    - docker push ${CI_REGISTRY_IMAGE}:${VERSION}
+    - docker build . -t ${CI_REGISTRY_IMAGE}:TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
+    - docker push ${CI_REGISTRY_IMAGE}:TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
     - docker logout
-
