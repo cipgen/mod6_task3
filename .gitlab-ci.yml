@@ -1,7 +1,7 @@
 image: golang:1.21
 
 variables:
-  REPO: "https://github.com/cipgen/kbot"
+  REPO: "https://github.com/cipgen/mod6_task3"
   BRANCH: "main"
   REGISTRY: "registry.gitlab.com/cipgen"
   OS: linux
@@ -64,4 +64,3 @@ image-job:
     - docker build . -t $IMAGE_TAG --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
     - docker push $IMAGE_TAG
     - docker logout
-
