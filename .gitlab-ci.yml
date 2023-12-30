@@ -10,6 +10,8 @@ variables:
   VER: "v1.0.9"
   APP: "kbot"
 
+  SUPPORT_IMAGE: "docker:19.03.12"
+  SUPPORT_SERVICE: "docker:19.03.12-dind" 
 
 
 stages:
@@ -40,23 +42,21 @@ build_execution:
   script:
     - mkdir -p output
     - VERSION="${VER}-${SHORTVERS}"
-    - echo $VERSION > output/art_version
     - echo "Full version is $VERSION"
     - echo 'BUILD EXECUTION STARTED'
     - make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
-  artifacts:
-    paths:
-      - output/
 
-    
+
+
 image_execution:
-  image: docker:19.03.12
+  stage: image
+  image: $SUPPORT_IMAGE
   services:
-    - docker:19.03.12-dind
-  #variables:
-    #IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}
+    - name: $SUPPORT_SERVICE
+      alias: docker
+  variables:
+    IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${VERSION}-${TARGETOS}-${TARGETARCH}
   script:
-    - make image REGISTRY=$REGISTRY APP=$APP VERSION=$VERSION TARGETOS=$OS TARGETARCH=$ARCH
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - docker build . -t $IMAGE_TAG --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
     - docker push $IMAGE_TAG
