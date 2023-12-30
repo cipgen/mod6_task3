@@ -1,7 +1,7 @@
 image: golang:1.21
 
 variables:
-  REPO: "https://github.com/cipgen/mod6_task3"
+  REPO: "https://github.com/cipgen/mod6_task3/kbot"
   BRANCH: "main"
   REGISTRY: "registry.gitlab.com/cipgen"
   OS: linux
