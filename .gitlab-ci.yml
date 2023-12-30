@@ -8,6 +8,7 @@ variables:
   OS: "linux"
   ARCH: "amd64"
   VER: "v1.0.9"
+  APP: "kbot"
 
 
 
@@ -41,4 +42,13 @@ build_execution:
     - echo "Full version is $VERSION"
     - echo 'BUILD EXECUTION STARTED'
     - make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
+
+image_execution:
+  stage: image
+  dependencies:
+  - build
+  script:
+  - echo 'IMAGE STARTED'
+  - cd $APP
+  - make image REGISTRY=$REGISTRY APP=$APP TARGETOS=$OS TARGETARCH=$ARCH
 
