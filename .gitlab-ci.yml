@@ -58,6 +58,10 @@ image_execution:
     IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - docker build . -t $IMAGE_TAG --build-arg TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VERSION
+    #- docker build . -t $IMAGE_TAG 
+    - make image REGISTRY=$REGISTRY APP=$APP VERSION=$VERSION TARGETOS=$OS TARGETARCH=$ARCH
     - docker push $IMAGE_TAG
     - docker logout
+
+     #--build-arg TARGETOS=$OS --build-arg TARGETARCH=$ARCH
+    
