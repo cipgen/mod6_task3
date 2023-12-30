@@ -1,6 +1,5 @@
 image: golang:1.21
 
-
 variables:
   REPO: "https://github.com/cipgen/kbot"
   BRANCH: "main"
@@ -54,13 +53,8 @@ image_execution:
   services:
     - name: $SUPPORT_SERVICE
       alias: docker
-  variables:
-    IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    #- docker build . -t $IMAGE_TAG 
-    - docker build . -t ${CI_REGISTRY_IMAGE}/kbot:v1.0.7-e290cca-linux-amd64
-    - docker push $IMAGE_TAG
+    - docker build . -t ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}
+    - docker push ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}
     - docker logout
-
-     #--build-arg TARGETOS=$OS --build-arg TARGETARCH=$ARCH
