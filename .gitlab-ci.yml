@@ -1,4 +1,4 @@
-image: golang:1.20
+image: golang:1.21
 
 variables:
   REPO: "https://github.com/cipgen/kbot"
@@ -8,10 +8,18 @@ variables:
   ARCH: amd64
   VER: v1.0.9
   APP: kbot
+  GIT_DEPTH: 1
+
+  TARGETOS: linux
+  TARGETARCH: amd64
+  BUILDS_DIR: out
 
 
-  SUPPORT_IMAGE: "docker:19.03.12"
-  SUPPORT_SERVICE: "docker:19.03.12-dind" 
+  SUPPORT_IMAGE: "docker:24.0.7"
+  SUPPORT_SERVICE: "docker:24.0.7-dind" 
+
+  #SUPPORT_IMAGE: "docker:19.03.12"
+  #SUPPORT_SERVICE: "docker:19.03.12-dind" 
 
 
 stages:
@@ -34,27 +42,26 @@ test_execution:
     - echo 'TEST EXECUTION STARTED'
     - make test
 
-build_execution:
+
+build-job:
   stage: build
-  before_script:
-    - export SHORTVERS=$(git rev-parse --short HEAD)
-    - echo "Short version is $SHORTVERS"
   script:
-    - VERSION="${VER}-${SHORTVERS}"
-    - echo "Full version is $VERSION"
-    - echo 'BUILD EXECUTION STARTED'
-    - make build TARGETOS=$OS TARGETARCH=$ARCH VERSION=$VER
-    #- CGO_ENABLED=0 GOOS=${OS} GOARCH=${ARCH} go build -v -o ./${BUILDS_DIR}/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=${VER}"
+    - gofmt -s -w ./
+    - go get
+    - CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o ./${BUILDS_DIR}/kbot -ldflags "-X=${BUILD_URL}/cmd.appVersion=${VERSION}"
 
 
-image_execution:
+image-job:
   stage: image
   image: $SUPPORT_IMAGE
   services:
     - name: $SUPPORT_SERVICE
       alias: docker
+  variables:
+    IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${VER}-${TARGETOS}-${TARGETARCH}
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - docker build . -t ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}
-    - docker push ${CI_REGISTRY_IMAGE}:${VER}-${OS}-${ARCH}
+    - docker build . -t $IMAGE_TAG --build-arg TARGETOS=${TARGETOS} --build-arg TARGETARCH=${TARGETARCH}
+    - docker push $IMAGE_TAG
     - docker logout
+
